@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 
 class data_analysis:
     def __init__(self):
@@ -89,7 +91,7 @@ class data_analysis:
         axes[2].set_title('LogValor')
         plt.tight_layout()
         plt.show()
-
+	
     def plot_histograma(self, df):
         columns = ['frequencia', 'LogFrequencia', 'recencia_valor', 'LogRecencia', 'valor/freq', 'LogValor']
         sns.set(style='ticks')
@@ -100,5 +102,25 @@ class data_analysis:
             ax[i].set_xlabel(coluna)
         plt.tight_layout()
         plt.show()
+
+    def fracionar_df(self, df):
+        df_alimentar = df.loc[df['canal_ALIMENTAR'] == 1]
+        df_ecommerce = df.loc[df['canal_E-COMMERCE'] == 1]
+        df_hospitalar = df.loc[df['canal_HOSPITALAR'] == 1]
+        df_varejo_direto = df.loc[df['canal_VAREJO DIRETO'] == 1]
+        df_varejo_indireto = df.loc[df['canal_VAREJO INDIRETO'] == 1]
+        return df_alimentar, df_ecommerce, df_hospitalar, df_varejo_direto, df_varejo_indireto
+    
+    def indice_RFV(self, df):
+        df = df.sort_values('LogFrequencia', ascending=False)
+        df['Tercil_Freq'] = pd.qcut(df['LogFrequencia'], q=3, labels=False) + 1
+        df = df.sort_values('LogValor', ascending=False)
+        df['Tercil_Valor'] = pd.qcut(df['LogValor'], q=3, labels=False) + 1
+        df['Tercil_Recencia'] = np.where(df['LogRecencia'] == 0.000000, 3, 1)
+        # os indices da recencia foram considerados 3 e 1 por conta do grande numero de dados O.
+        return df
+
+
+    
 
 

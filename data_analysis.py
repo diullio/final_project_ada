@@ -3,12 +3,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import MinMaxScaler
+from sklearn import preprocessing
 from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import AgglomerativeClustering
+from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn import metrics
+import plotly.graph_objs as go
+import plotly.io as pio
+import warnings
 
 class data_analysis:
     def __init__(self):
-        pass
+        warnings.simplefilter("ignore")
 
     def read_file(self):
         df = pd.read_excel("rfv_analise.xlsx")
@@ -111,7 +117,7 @@ class data_analysis:
         df_varejo_indireto = df.loc[df['canal_VAREJO INDIRETO'] == 1]
         return df_alimentar, df_ecommerce, df_hospitalar, df_varejo_direto, df_varejo_indireto
     
-    def indice_RFV(self, df):
+    def indice_RFV(self, df,):
         df = df.sort_values('LogFrequencia', ascending=False)
         df['Tercil_Freq'] = pd.qcut(df['LogFrequencia'], q=3, labels=False) + 1
         df = df.sort_values('LogValor', ascending=False)
@@ -120,7 +126,90 @@ class data_analysis:
         # os indices da recencia foram considerados 3 e 1 por conta do grande numero de dados O.
         return df
 
+    def kmeans_method(self, df, k):
+        
+        df_kmeans = df
+        scaler = preprocessing.StandardScaler()
+        df_norm_kmeans = scaler.fit_transform(df_kmeans)
+        # metodo do cotovelo
+        wcss = []
 
+        for i in range(1,11):
+            kmeans = KMeans(n_clusters = i, init='random')
+            kmeans.fit(df_kmeans)
+            wcss.append(kmeans.inertia_)
+
+        plt.plot(range(1,11), wcss)
+        plt.title('Metodo do Cotovelo')
+        plt.xlabel('Numero de Clusters')
+        plt.ylabel('WCSS')
+        plt.show()
     
+        kmeans = KMeans(n_clusters=k, random_state=1810)
+        kmeans = kmeans.fit(df_norm_kmeans)
+        df_kmeans["Cluster"] = kmeans.predict(df_norm_kmeans)
+        
+        #analise de medidas
+        medidas = ['count', 'min', 'mean', 'median', 'max']
+        colunas = ['LogFrequencia', 'LogRecencia', 'LogValor']
+
+        agrup = df_kmeans.groupby(['Cluster'])
+
+        resumo_kmeans = agrup[colunas].agg(medidas)
+        #print(resumo_kmeans)
+        
+        # coeficiente de silhueta para cada amostra
+        cs_kmeans = metrics.silhouette_samples(df_kmeans, df_kmeans['Cluster'])
+        #valores entre 0 e 1 bom agrupamento dos dados
+        cs_kmeans_final = metrics.silhouette_score(df_kmeans, df_kmeans['Cluster'])
+        print(f'Score do coefiente de Silhueta: {cs_kmeans_final}')
+        return df_kmeans
+
+    def plotar_3d(self, df_kmeans):
+        # Convertendo os dados para o formato do Plotly
+        data = [
+            go.Scatter3d(
+                x=df_kmeans['LogFrequencia'],
+                y=df_kmeans['LogRecencia'],
+                z=df_kmeans['LogValor'],
+                mode='markers',
+                marker=dict(
+                    size=4,
+                    color=df_kmeans['Cluster'],
+                    colorscale='Viridis',
+                    line=dict(width=0.5, color='black')
+                )
+            )
+        ]
+
+        # Configurando os rótulos dos eixos
+        layout = go.Layout(
+            scene=dict(
+                xaxis=dict(title='LogFrequencia'),
+                yaxis=dict(title='LogRecencia'),
+                zaxis=dict(title='LogValor')
+            )
+        )
+
+        # Criando a figura e plotando o gráfico interativo
+        fig = go.Figure(data=data, layout=layout)
+        pio.show(fig)
+
+    def plotar_3d_2(self, df_final):
+    # Configurando a figura e os eixos 3D
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        # Gerando o gráfico scatter 3D
+
+        ax.scatter(df_final['LogFrequencia'], df_final['LogRecencia'], df_final['LogValor'], c=df_final['Cluster'], s=64, edgecolors='k', cmap='viridis')
+        # Configurando os rótulos dos eixos
+        ax.set_xlabel('LogFrequencia')
+        ax.set_ylabel('LogRecencia')
+        ax.set_zlabel('LogValor')
+
+        # Exibindo o gráfico
+        plt.show()
+        
 
 

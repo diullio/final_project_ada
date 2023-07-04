@@ -11,6 +11,7 @@ from sklearn import metrics
 import plotly.graph_objs as go
 import plotly.io as pio
 import warnings
+from mpl_toolkits.mplot3d import Axes3D
 
 class data_analysis:
     def __init__(self):
@@ -139,11 +140,11 @@ class data_analysis:
             kmeans.fit(df_kmeans)
             wcss.append(kmeans.inertia_)
 
-        plt.plot(range(1,11), wcss)
-        plt.title('Metodo do Cotovelo')
-        plt.xlabel('Numero de Clusters')
-        plt.ylabel('WCSS')
-        plt.show()
+        # plt.plot(range(1,11), wcss)
+        # plt.title('Metodo do Cotovelo')
+        # plt.xlabel('Numero de Clusters')
+        # plt.ylabel('WCSS')
+        # plt.show()
     
         kmeans = KMeans(n_clusters=k, random_state=1810)
         kmeans = kmeans.fit(df_norm_kmeans)
@@ -163,6 +164,27 @@ class data_analysis:
         #valores entre 0 e 1 bom agrupamento dos dados
         cs_kmeans_final = metrics.silhouette_score(df_kmeans, df_kmeans['Cluster'])
         print(f'Score do coefiente de Silhueta: {cs_kmeans_final}')
+        
+        #plotar graficos
+        plt.figure(figsize=(12, 6))
+    
+        # Método do Cotovelo
+        plt.subplot(1, 2, 1)
+        plt.plot(range(1, 11), wcss)
+        plt.title('Metodo do Cotovelo')
+        plt.xlabel('Numero de Clusters')
+        plt.ylabel('WCSS')
+        
+        # Gráfico 3D
+        ax = plt.subplot(1, 2, 2, projection='3d')
+        ax.scatter(df_kmeans['LogFrequencia'], df_kmeans['LogRecencia'], df_kmeans['LogValor'], c=df_kmeans['Cluster'], cmap='viridis',  s=64, edgecolors='k')
+        ax.set_xlabel('LogFrequencia')
+        ax.set_ylabel('LogRecencia')
+        ax.set_zlabel('LogValor')
+        
+        plt.tight_layout()
+        plt.show()
+        
         return df_kmeans
 
     def plotar_3d(self, df_kmeans):
@@ -195,21 +217,7 @@ class data_analysis:
         fig = go.Figure(data=data, layout=layout)
         pio.show(fig)
 
-    def plotar_3d_2(self, df_final):
-    # Configurando a figura e os eixos 3D
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
 
-        # Gerando o gráfico scatter 3D
-
-        ax.scatter(df_final['LogFrequencia'], df_final['LogRecencia'], df_final['LogValor'], c=df_final['Cluster'], s=64, edgecolors='k', cmap='viridis')
-        # Configurando os rótulos dos eixos
-        ax.set_xlabel('LogFrequencia')
-        ax.set_ylabel('LogRecencia')
-        ax.set_zlabel('LogValor')
-
-        # Exibindo o gráfico
-        plt.show()
         
 
 

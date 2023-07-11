@@ -157,7 +157,7 @@ class data_analysis:
         agrup = df_kmeans.groupby(['Cluster'])
 
         resumo_kmeans = agrup[colunas].agg(medidas)
-        #print(resumo_kmeans)
+        print(resumo_kmeans)
         
         # coeficiente de silhueta para cada amostra
         cs_kmeans = metrics.silhouette_samples(df_kmeans, df_kmeans['Cluster'])

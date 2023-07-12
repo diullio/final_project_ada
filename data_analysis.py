@@ -20,7 +20,7 @@ class data_analysis:
         df["BU_DATA"] = df["BU-TESTE"].map(bu.set_index("BU-TESTE")["BU-RFV"])
         df['rede_uf'] = df['Rede'] + ' - ' + df['UF']
         df = df[df["Qtd Entregue"] > 0]
-        df = df.drop(["Rede", "UF", "BU", "BU New", ], axis=1)
+        df = df.drop(["Rede", "BU", "BU New", ], axis=1)
         meses = {'JANEIRO': '01', 'FEVEREIRO': '02', 'MARÇO': '03', 'ABRIL': '04',
         'MAIO': '05', 'JUNHO': '06', 'JULHO': '07', 'AGOSTO': '08',
         'SETEMBRO': '09', 'OUTUBRO': '10', 'NOVEMBRO': '11', 'DEZEMBRO': '12'}
@@ -44,7 +44,7 @@ class data_analysis:
         df = df.drop(["Entregue - Liq Abatimento","Qtd Entregue"], axis=1)
         df = df.rename(columns={'Canal VD-VI-Hosp': 'canal'})
         df = df.drop("data", axis=1)
-        df = df.groupby(['canal', 'rede_uf']).agg({
+        df = df.groupby(['canal', 'rede_uf', 'UF']).agg({
             'recencia_valor': 'max',
             'frequencia': 'max',
             'valor': 'sum'
@@ -52,7 +52,6 @@ class data_analysis:
         df["valor/freq"] = df["valor"]/df["frequencia"]
         df = df.drop("valor", axis=1)
         df = df.rename(columns={'recencia_valor': 'recencia', 'valor/freq': 'valor'})
-        df = df.set_index('rede_uf')
         return df
 
     def fracionar_df(self, df):

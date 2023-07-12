@@ -21,32 +21,58 @@ class BD:
             if(self.connection):
                 print("Falha ao se conectar ao Banco de dados", error)
   
-    def inserirDados(self, ):
+    def updateorinsertDados(self, date, rede_uf, uf, canal, recencia, frequencia, valor, score_frequencia, score_valor, score_recencia, score):
         try:
-            self.abrirConexao()
+            # self.abrirConexao()
             cursor = self.connection.cursor()
-            postgres_insert_query = """INSERT INTO public.ifa (cd_ifa, nome, fabricante, dmf, ano, risco, chk_lhasa, chk_td50, chk_ttc, chk_ai, chk_readacross, chk_alertamercado, chk_predicao, chk_purga, chk_nitrosado, chk_testconf, chk_ames, chk_teorico) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-            record_to_insert = (cd_ifa, nome, fabricante, dmf, ano, risco, chk_lhasa, chk_td50, chk_ttc, chk_ai, chk_readacross, chk_alertamercado, chk_predicao, chk_purga, chk_nitrosado, chk_testconf, chk_ames, chk_teorico)
-            cursor.execute(postgres_insert_query, record_to_insert)
 
-            sql_select = f"""
-            SELECT * FROM public.ifa 
-            order by id_ifa_pk desc 
-            LIMIT 1
+            # Verificar se o registro já existe na tabela rfv.analysis
+            postgres_check_query = """
+            SELECT id_analysis FROM rfv.analysis WHERE rede_uf = %s AND canal = %s
             """
-            cursor.execute(sql_select)
-            id_ifa_pfk = cursor.fetchone()[0]
-            
-        #insert racional
-            postgres_insert_rac = """INSERT INTO public.racional_ifa (id_ifa_pfk, racional_ifa) VALUES (%s, %s)"""
-            record_to_insert_rac = (id_ifa_pfk , racional_ifa)
-            cursor.execute(postgres_insert_rac, record_to_insert_rac)
+            cursor.execute(postgres_check_query, (rede_uf, canal))
+            result = cursor.fetchone()
+
+            if result:
+                # Atualizar o registro existente na tabela rfv.analysis
+                id_analysis = result[0]
+                postgres_update_query = """
+                UPDATE rfv.analysis 
+                SET recencia = %s, frequencia = %s, valor = %s, score_frequencia = %s, score_valor = %s, score_recencia = %s, score = %s 
+                WHERE id_analysis = %s
+                """
+                record_to_update = (recencia, frequencia, valor, score_frequencia, score_valor, score_recencia, score, id_analysis)
+                cursor.execute(postgres_update_query, record_to_update)
+            else:
+                # Inserir um novo registro na tabela rfv.analysis
+                postgres_insert_analysis = """
+                INSERT INTO rfv.analysis (rede_uf, uf, canal, recencia, frequencia, valor, score_frequencia, score_valor, score_recencia, score) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                record_to_insert_analysis = (rede_uf, uf, canal, recencia, frequencia, valor, score_frequencia, score_valor, score_recencia, score)
+                cursor.execute(postgres_insert_analysis, record_to_insert_analysis)
+
+                # Obter o id_analysis do registro recém-inserido
+                cursor.execute("SELECT currval('rfv.analysis_id_analysis_seq')")
+                id_analysis = cursor.fetchone()[0]
+
+            # Inserir na tabela rfv.evolucao
+            postgres_insert_evolucao = """
+            INSERT INTO rfv.evolucao (id_analysis, date, recencia, frequencia, valor, score_freq, score_valor, score_recencia, score) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            record_to_insert_evolucao = (id_analysis, date, recencia, frequencia, valor, score_frequencia, score_valor, score_recencia, score)
+            cursor.execute(postgres_insert_evolucao, record_to_insert_evolucao)
+
             self.connection.commit()
         except (Exception, psycopg2.Error) as error :
             if(self.connection):
                 print("Falha ao inserir registro na tabela", error)
         finally:
-            #closing database connection.
             if(self.connection):
                 cursor.close()    
-                self.connection.close()           
+                # self.connection.close()
+
+    def closeConexao(self):
+        if(self.connection):
+            self.connection.close()

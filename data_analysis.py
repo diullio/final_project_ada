@@ -28,12 +28,13 @@ class data_analysis:
         df['data'] = pd.to_datetime(df['Ano'].astype(str) + '-' + df['mes_numero'], format="%Y-%m")
         df = df.drop(["Ano", "Trimestre", "Mês"], axis=1)
         df = df.drop(["mes_numero", "BU-TESTE"], axis=1)
+        #filtro de data aqui
+        # df = df[df['data'].dt.year <= 2021]
         ultima_compra = df.groupby("rede_uf")["data"].max().reset_index()
         ultima_compra = ultima_compra.rename(columns={'data': 'recencia'})
         df = pd.merge(df, ultima_compra, on = "rede_uf", how = "left")
         #data_atual = df['data'].max()
         data_atual = pd.to_datetime(datetime.now().date().replace(day=1))
-        # df["recencia_valor"] = (data_maxima - df["recencia"]).dt.days
         df["recencia_valor"] = (data_atual - df["recencia"]).dt.days
         def converter_meses(recencia):
             return math.floor(recencia / 30)

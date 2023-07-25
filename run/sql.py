@@ -12,10 +12,6 @@ class BD:
                                     user="diulliosantos",        
                                     password="diulliosantosdatajourney",
                                     host = "azxpsg01.postgres.database.azure.com")
-            # self.connection = psycopg2.connect(database = "postgres",
-            #                         user="postgres",        
-            #                         password="0903",
-            #                         host = "localhost")
         
         except (Exception, psycopg2.Error) as error:
             if(self.connection):

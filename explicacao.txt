@@ -1,0 +1,24 @@
+1-
+Elevado volume de dados
+Manualidade: analises manuais são demoradas e propensas a erros
+Dificuldade na Análise: difícil interpretação de dados quando eu seu estado bruto.
+Falta de visão abrangente: falta de um sistema centralizado dificulta obtenção de insights abrangentes.
+
+2-
+Tempo e custo: analise manual consome muito tempo e recurso
+Potencial de Erros: analise manual aumenta probabilidade de erros, impactando na qualidade das conclusões
+Acesso a informação: coleta dos dados é um processo trabalho e pode haver dificuldade pra obter as informações quando fontes diversas
+Complexidade de dados: sem ferramentas adequadas e difícil extrair insights adequados.
+
+3-
+Automatização: Implementação de um sistema de coleta, armazenamento e analise automatica dos dados
+Banco de dados: Banco centralizado para armazenar todas informações
+Análises recorrentes: análises recorrentes para monitorar a evolução 
+Integração de dados: visão holística do cliente
+
+4- 
+Análise Proativa: Poderei analisar dados em tempo real, permitindo uma abordagem proativa no atendimento ao cliente.
+Identificação de Tendências: Revelar tendências de comportamento do cliente, auxiliando na tomada de decisões estratégicas.
+Redução de Churn: Ao monitorar a evolução do cliente, posso identificar padrões que ajudem a reduzir a perda (churn) de clientes.
+Personalização de Ofertas: Compreender melhor o perfil do cliente possibilitará a oferta de produtos e serviços mais personalizados, aumentando o engajamento e a fidelidade.
+

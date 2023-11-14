@@ -1,3 +1,7 @@
+Análise RFV
+
+Projeto para compreensão do comportamento de clientes, agrupando e mapeando a melhor forma de atende-los.
+
 Na pasta Run contem os arquivos do projeto (
     project: arquivo principal, 
     data_analysis: arquivo que faz as modificações no dataset,
